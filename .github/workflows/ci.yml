@@ -1,0 +1,21 @@
+name: MedTime checks
+on:
+  push:
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: node scripts/setup-env.mjs
+      - run: bash scripts/start-db.sh
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+        env:
+          TEST_MONGODB_URI: mongodb://127.0.0.1:27017/medtime_test?replicaSet=rs0
